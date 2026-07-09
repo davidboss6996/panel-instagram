@@ -1,4 +1,4 @@
 [
-  { "handle": "przyklad_klient_1", "name": brookesoftalk },
-  { "handle": "przyklad_klient_2", "name": itsbrooke.fox }
+  { "handle": "przyklad_klient_1", "name": "brookesoftalk" },
+  { "handle": "przyklad_klient_2", "name": "itsbrooke.fox" }
 ]
