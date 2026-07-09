@@ -1,20 +1,20 @@
 [
   {
-    "handle": "przyklad_klient_1",
-    "name": "brookesoftalk",
+    "handle": "brookesoftalk",
+    "name": "Brookesoft Talk",
     "followers": null,
     "posts": null,
     "views24h": null,
     "status": "banned",
-    "updatedAt": "2026-07-09T14:32:34.321Z"
+    "updatedAt": "2026-07-09T14:35:16.859Z"
   },
   {
-    "handle": "przyklad_klient_2",
-    "name": "itsbrooke.fox",
-    "followers": null,
-    "posts": null,
-    "views24h": null,
-    "status": "banned",
-    "updatedAt": "2026-07-09T14:32:34.321Z"
+    "handle": "itsbrooke.fox",
+    "name": "Brooke Fox",
+    "followers": 12,
+    "posts": 22,
+    "views24h": 0,
+    "status": "live",
+    "updatedAt": "2026-07-09T14:35:16.859Z"
   }
 ]
