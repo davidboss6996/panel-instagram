@@ -1,4 +1,6 @@
 [
-  { "handle": "brookesoftalk", "name": "Brookesoft Talk" },
-  { "handle": "itsbrooke.fox", "name": "Brooke Fox" }
+  {
+    "handle": "itsbrooke.fox",
+    "name": "Brooke Fox"
+  }
 ]
