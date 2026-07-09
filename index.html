@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Instagram — Agencja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+
+<style>
+  :root{
+    --bg:#101214; --surface:#181b1f; --surface-2:#20242a; --border:#2b3038;
+    --text:#ece9e2; --text-muted:#8b909a; --text-faint:#5b616b;
+    --accent-ig:#d6558f; --accent-ig-bg:rgba(214,85,143,0.12);
+    --live:#6fcf97; --live-bg:rgba(111,207,151,0.12);
+    --banned:#eb5757; --banned-bg:rgba(235,87,87,0.12);
+    --gold:#f2c879; --radius:10px;
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);}
+  body{font-family:var(--font-body); min-height:100vh; -webkit-font-smoothing:antialiased;}
+  #root{max-width:1080px;margin:0 auto;padding:36px 24px 80px;}
+
+  .header{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:28px; flex-wrap:wrap; gap:16px;}
+  .eyebrow{font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; color:var(--gold); text-transform:uppercase; margin:0 0 6px;}
+  h1{font-family:var(--font-display); font-weight:700; font-size:28px; margin:0; letter-spacing:-0.01em;}
+  .subtitle{color:var(--text-muted); font-size:13.5px; margin-top:6px;}
+
+  .btn{font-family:var(--font-body); font-weight:600; font-size:13.5px; border:none; border-radius:8px; padding:11px 18px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:transform .12s ease, background .12s ease;}
+  .btn:active{transform:scale(0.97);}
+  .btn:disabled{opacity:0.5; cursor:default;}
+  .btn-primary{background:var(--gold); color:#1a1508;}
+  .btn-primary:hover{background:#f5d495;}
+  .btn-ghost{background:var(--surface-2); color:var(--text); border:1px solid var(--border);}
+  .btn-ghost:hover{border-color:#3a4048;}
+
+  .summary{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:28px;}
+  @media (max-width:760px){ .summary{grid-template-columns:repeat(2,1fr);} }
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px;}
+  .card-label{font-size:12px; color:var(--text-muted); margin-bottom:8px;}
+  .card-value{font-family:var(--font-mono); font-size:22px; font-weight:700; letter-spacing:-0.02em;}
+
+  .controls{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap;}
+  .tabs{display:flex; gap:6px; background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:4px;}
+  .tab{font-family:var(--font-body); font-size:12.5px; font-weight:600; color:var(--text-muted); background:transparent; border:none; padding:7px 14px; border-radius:6px; cursor:pointer;}
+  .tab.active{background:var(--surface-2); color:var(--text);}
+  .search{background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 12px; color:var(--text); font-size:13px; font-family:var(--font-body); width:220px; outline:none;}
+  .search::placeholder{color:var(--text-faint);}
+  .search:focus{border-color:#3a4048;}
+
+  .table-wrap{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;}
+  table{width:100%; border-collapse:collapse;}
+  thead th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); font-weight:600; padding:13px 16px; border-bottom:1px solid var(--border); cursor:pointer; user-select:none; white-space:nowrap;}
+  thead th:hover{color:var(--text-muted);}
+  thead th.sorted{color:var(--gold);}
+  tbody tr{border-bottom:1px solid var(--border);}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:var(--surface-2);}
+  tbody tr.is-banned{opacity:0.55;}
+  td{padding:13px 16px; font-size:13.5px; vertical-align:middle;}
+
+  .rank{font-family:var(--font-mono); color:var(--text-faint); font-size:12.5px;}
+  .rank.top{color:var(--gold);}
+  .account-cell{display:flex; align-items:center; gap:11px;}
+  .badge{width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:11px; flex-shrink:0; background:var(--accent-ig-bg); color:var(--accent-ig);}
+  .acc-name{font-weight:600; font-size:13.5px; line-height:1.3;}
+  .acc-handle{color:var(--text-muted); font-size:12px; font-family:var(--font-mono);}
+  .num{font-family:var(--font-mono); font-weight:500; font-size:13.5px;}
+  .num.views{color:var(--gold); font-weight:700;}
+  .updated{color:var(--text-faint); font-size:12px; font-family:var(--font-mono);}
+
+  .status-pill{display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; padding:5px 10px; border-radius:20px;}
+  .status-pill.live{background:var(--live-bg); color:var(--live);}
+  .status-pill.banned{background:var(--banned-bg); color:var(--banned);}
+  .status-dot{width:6px; height:6px; border-radius:50%; background:currentColor;}
+
+  .row-actions{display:flex; gap:4px; justify-content:flex-end;}
+  .icon-btn{background:transparent; border:none; color:var(--text-faint); cursor:pointer; padding:6px; border-radius:6px; display:flex;}
+  .icon-btn:hover{background:var(--surface-2); color:var(--text);}
+
+  .empty{padding:70px 20px; text-align:center; color:var(--text-muted);}
+  .empty-title{font-family:var(--font-display); font-size:17px; color:var(--text); margin-bottom:6px;}
+  .empty p{font-size:13.5px; max-width:400px; margin:0 auto 20px;}
+
+  .overlay{position:fixed; inset:0; background:rgba(8,9,10,0.7); display:flex; align-items:center; justify-content:center; z-index:50; padding:20px;}
+  .modal{background:var(--surface); border:1px solid var(--border); border-radius:14px; width:100%; max-width:440px; padding:24px; max-height:90vh; overflow-y:auto;}
+  .modal h2{font-family:var(--font-display); font-size:18px; margin:0 0 6px;}
+  .modal-desc{font-size:12.5px; color:var(--text-muted); margin:0 0 18px; line-height:1.5;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px; font-weight:600;}
+  .field input{width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:7px; padding:10px 12px; color:var(--text); font-size:13.5px; font-family:var(--font-body); outline:none;}
+  .field input:focus{border-color:var(--gold);}
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .modal-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:20px;}
+  .modal-error{background:var(--banned-bg); color:var(--banned); font-size:12.5px; padding:10px 12px; border-radius:7px; margin-bottom:14px;}
+  .modal-ok{background:var(--live-bg); color:var(--live); font-size:12.5px; padding:10px 12px; border-radius:7px; margin-bottom:14px;}
+
+  .loading{padding:60px; text-align:center; color:var(--text-faint); font-family:var(--font-mono); font-size:13px;}
+  .setup-banner{background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius); padding:18px 20px; margin-bottom:24px; font-size:13px; color:var(--text-muted); line-height:1.6;}
+  .setup-banner b{color:var(--text);}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+const { useState, useEffect, useMemo } = React;
+
+function uid(){ return 'a' + Math.random().toString(36).slice(2,10); }
+function fmtNum(n){ n = Number(n)||0; return new Intl.NumberFormat('pl-PL').format(n); }
+function fmtDate(iso){
+  if(!iso) return '—';
+  const d = new Date(iso);
+  const diffH = Math.round((Date.now()-d)/36e5);
+  if(diffH < 1) return 'przed chwilą';
+  if(diffH < 24) return diffH + 'h temu';
+  return Math.round(diffH/24) + 'd temu';
+}
+function b64EncodeUnicode(str){
+  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (m,p)=>String.fromCharCode('0x'+p)));
+}
+function b64DecodeUnicode(str){
+  return decodeURIComponent(atob(str).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+}
+
+const LS_SETTINGS = 'ig-panel-settings';
+
+function loadSettings(){
+  try{ return JSON.parse(localStorage.getItem(LS_SETTINGS)) || {}; }catch(e){ return {}; }
+}
+function saveSettingsToStorage(s){
+  localStorage.setItem(LS_SETTINGS, JSON.stringify(s));
+}
+
+function App(){
+  const [settings, setSettings] = useState(loadSettings());
+  const [settingsOpen, setSettingsOpen] = useState(!settings.owner || !settings.repo);
+  const [settingsDraft, setSettingsDraft] = useState(settings);
+  const [settingsMsg, setSettingsMsg] = useState('');
+
+  const [accounts, setAccounts] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [search, setSearch] = useState('');
+  const [sortKey, setSortKey] = useState('views24h');
+  const [sortDir, setSortDir] = useState('desc');
+  const [loadError, setLoadError] = useState('');
+
+  const [addOpen, setAddOpen] = useState(false);
+  const [addHandle, setAddHandle] = useState('');
+  const [addName, setAddName] = useState('');
+  const [addBusy, setAddBusy] = useState(false);
+  const [addMsg, setAddMsg] = useState('');
+
+  const rawUrl = settings.owner && settings.repo
+    ? `https://raw.githubusercontent.com/${settings.owner}/${settings.repo}/main/data/stats.json?t=${Date.now()}`
+    : null;
+  const apiBase = settings.owner && settings.repo
+    ? `https://api.github.com/repos/${settings.owner}/${settings.repo}`
+    : null;
+
+  async function loadStats(){
+    if(!rawUrl){ setAccounts([]); return; }
+    setLoadError('');
+    try{
+      const res = await fetch(rawUrl, { cache:'no-store' });
+      if(!res.ok) throw new Error('Nie znaleziono pliku data/stats.json (HTTP ' + res.status + ')');
+      const data = await res.json();
+      setAccounts(data.map(a => ({ ...a, id: a.handle })));
+    }catch(e){
+      setLoadError(e.message);
+      setAccounts([]);
+    }
+  }
+
+  useEffect(() => { loadStats(); /* eslint-disable-next-line */ }, [settings.owner, settings.repo]);
+
+  function saveSettings(e){
+    e.preventDefault();
+    setSettings(settingsDraft);
+    saveSettingsToStorage(settingsDraft);
+    setSettingsOpen(false);
+  }
+
+  async function githubGetFile(path){
+    const res = await fetch(`${apiBase}/contents/${path}`, {
+      headers: { 'Authorization': 'Bearer ' + settings.token, 'Accept': 'application/vnd.github+json' }
+    });
+    if(!res.ok) throw new Error('Nie udało się odczytać ' + path + ' (HTTP ' + res.status + ')');
+    const json = await res.json();
+    const content = b64DecodeUnicode(json.content.replace(/\n/g,''));
+    return { content: JSON.parse(content), sha: json.sha };
+  }
+
+  async function githubPutFile(path, newContentObj, sha, message){
+    const res = await fetch(`${apiBase}/contents/${path}`, {
+      method: 'PUT',
+      headers: { 'Authorization': 'Bearer ' + settings.token, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message,
+        content: b64EncodeUnicode(JSON.stringify(newContentObj, null, 2)),
+        sha
+      })
+    });
+    if(!res.ok){
+      const err = await res.json().catch(()=>({}));
+      throw new Error('Zapis nie powiódł się (HTTP ' + res.status + '): ' + (err.message || ''));
+    }
+  }
+
+  async function triggerWorkflow(){
+    try{
+      await fetch(`${apiBase}/actions/workflows/update-stats.yml/dispatches`, {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + settings.token, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ref: 'main' })
+      });
+    }catch(e){ /* nieistotne, i tak zadziała przy najbliższym cyklu */ }
+  }
+
+  async function handleAddAccount(e){
+    e.preventDefault();
+    if(!addHandle.trim()) return;
+    setAddBusy(true); setAddMsg('');
+    try{
+      const { content, sha } = await githubGetFile('config/usernames.json');
+      const handle = addHandle.trim().replace(/^@/,'');
+      if(content.some(c => c.handle.toLowerCase() === handle.toLowerCase())){
+        throw new Error('To konto już jest na liście.');
+      }
+      content.push({ handle, name: addName.trim() || handle });
+      await githubPutFile('config/usernames.json', content, sha, `Dodano konto: ${handle}`);
+      await triggerWorkflow();
+      setAddMsg('Dodano! Automat pobiera dane w tej chwili — odśwież panel za ok. 30 sekund.');
+      setAddHandle(''); setAddName('');
+      setTimeout(loadStats, 20000);
+    }catch(e){
+      setAddMsg('Błąd: ' + e.message);
+    }
+    setAddBusy(false);
+  }
+
+  async function handleRemoveAccount(handle){
+    if(!confirm(`Usunąć @${handle} z listy śledzonych kont?`)) return;
+    try{
+      const { content, sha } = await githubGetFile('config/usernames.json');
+      const next = content.filter(c => c.handle.toLowerCase() !== handle.toLowerCase());
+      await githubPutFile('config/usernames.json', next, sha, `Usunięto konto: ${handle}`);
+      setAccounts(prev => prev.filter(a => a.handle.toLowerCase() !== handle.toLowerCase()));
+    }catch(e){
+      alert('Błąd usuwania: ' + e.message);
+    }
+  }
+
+  function toggleSort(key){
+    if(sortKey === key){ setSortDir(d => d === 'desc' ? 'asc' : 'desc'); }
+    else { setSortKey(key); setSortDir('desc'); }
+  }
+
+  const filtered = useMemo(() => {
+    if(!accounts) return [];
+    let list = accounts;
+    if(statusFilter !== 'all') list = list.filter(a => a.status === statusFilter);
+    if(search.trim()){
+      const q = search.trim().toLowerCase();
+      list = list.filter(a => (a.name||'').toLowerCase().includes(q) || (a.handle||'').toLowerCase().includes(q));
+    }
+    return [...list].sort((a,b) => {
+      let va = a[sortKey] ?? 0, vb = b[sortKey] ?? 0;
+      if(typeof va === 'string'){ va = va.toLowerCase(); vb = (vb||'').toLowerCase(); }
+      if(va < vb) return sortDir === 'asc' ? -1 : 1;
+      if(va > vb) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [accounts, statusFilter, search, sortKey, sortDir]);
+
+  const totals = useMemo(() => {
+    if(!accounts) return {count:0, live:0, banned:0, followers:0, views:0};
+    return accounts.reduce((acc,a) => ({
+      count: acc.count+1,
+      live: acc.live + (a.status==='live' ? 1 : 0),
+      banned: acc.banned + (a.status==='banned' ? 1 : 0),
+      followers: acc.followers + (a.followers||0),
+      views: acc.views + (a.views24h||0),
+    }), {count:0, live:0, banned:0, followers:0, views:0});
+  }, [accounts]);
+
+  const canWrite = !!(settings.owner && settings.repo && settings.token);
+
+  return React.createElement('div', null,
+    React.createElement('div', {className:'header'},
+      React.createElement('div', null,
+        React.createElement('div', {className:'eyebrow'}, 'Panel klientów · Instagram'),
+        React.createElement('h1', null, 'Przegląd kont'),
+        React.createElement('div', {className:'subtitle'}, 'Dane odświeżane automatycznie przez GitHub Actions + Apify.')
+      ),
+      React.createElement('div', {style:{display:'flex', gap:8}},
+        React.createElement('button', {className:'btn btn-ghost', onClick:()=>{ setSettingsDraft(settings); setSettingsOpen(true); }}, '⚙ Ustawienia'),
+        React.createElement('button', {className:'btn btn-ghost', onClick:loadStats}, '⟳ Odśwież'),
+        React.createElement('button', {
+          className:'btn btn-primary',
+          disabled:!canWrite,
+          title: canWrite ? '' : 'Uzupełnij token w Ustawieniach, żeby dodawać konta',
+          onClick:()=>{ setAddMsg(''); setAddOpen(true); }
+        }, '+ Dodaj konto')
+      )
+    ),
+
+    !canWrite && React.createElement('div', {className:'setup-banner'},
+      React.createElement('b', null, 'Panel działa w trybie tylko-do-odczytu.'), ' Żeby dodawać konta przyciskiem, wejdź w ⚙ Ustawienia i uzupełnij nazwę użytkownika/organizacji GitHub, nazwę repozytorium i token dostępu (uprawnienia: tylko to repo, Contents: Read and write).'
+    ),
+
+    loadError && React.createElement('div', {className:'setup-banner', style:{borderColor:'var(--banned)', color:'var(--banned)'}}, loadError),
+
+    accounts !== null && React.createElement('div', {className:'summary'},
+      React.createElement('div', {className:'card'},
+        React.createElement('div', {className:'card-label'}, 'Konta w panelu'),
+        React.createElement('div', {className:'card-value'}, fmtNum(totals.count))
+      ),
+      React.createElement('div', {className:'card'},
+        React.createElement('div', {className:'card-label'}, 'Aktywne / zbanowane'),
+        React.createElement('div', {className:'card-value'},
+          React.createElement('span', {style:{color:'var(--live)'}}, fmtNum(totals.live)), ' / ',
+          React.createElement('span', {style:{color:'var(--banned)'}}, fmtNum(totals.banned)))
+      ),
+      React.createElement('div', {className:'card'},
+        React.createElement('div', {className:'card-label'}, 'Wyświetlenia (24h)'),
+        React.createElement('div', {className:'card-value', style:{color:'var(--gold)'}}, fmtNum(totals.views))
+      ),
+      React.createElement('div', {className:'card'},
+        React.createElement('div', {className:'card-label'}, 'Łączni obserwujący'),
+        React.createElement('div', {className:'card-value'}, fmtNum(totals.followers))
+      ),
+    ),
+
+    accounts !== null && React.createElement('div', {className:'controls'},
+      React.createElement('div', {className:'tabs'},
+        ['all','live','banned'].map(s =>
+          React.createElement('button', {key:s, className:'tab' + (statusFilter===s ? ' active':''), onClick:()=>setStatusFilter(s)},
+            s==='all' ? 'Wszystkie' : s==='live' ? 'Live' : 'Zbanowane'))
+      ),
+      React.createElement('input', {className:'search', placeholder:'Szukaj konta…', value:search, onChange:e=>setSearch(e.target.value)})
+    ),
+
+    accounts === null
+      ? React.createElement('div', {className:'loading'}, 'Ładowanie…')
+      : filtered.length === 0
+        ? React.createElement('div', {className:'table-wrap'},
+            React.createElement('div', {className:'empty'},
+              React.createElement('div', {className:'empty-title'}, accounts.length === 0 ? 'Panel jest jeszcze pusty' : 'Brak wyników'),
+              React.createElement('p', null, accounts.length === 0
+                ? 'Dodaj pierwsze konto klienta przyciskiem "+ Dodaj konto" powyżej.'
+                : 'Zmień filtr albo wyszukiwane hasło.')
+            ))
+        : React.createElement('div', {className:'table-wrap'},
+            React.createElement('table', null,
+              React.createElement('thead', null,
+                React.createElement('tr', null,
+                  React.createElement('th', null, '#'),
+                  React.createElement('th', {onClick:()=>toggleSort('name')}, 'Username'),
+                  React.createElement('th', {onClick:()=>toggleSort('views24h')}, 'Views last24'),
+                  React.createElement('th', {onClick:()=>toggleSort('followers')}, 'Total followers'),
+                  React.createElement('th', {onClick:()=>toggleSort('posts')}, 'Number of posts'),
+                  React.createElement('th', {onClick:()=>toggleSort('status')}, 'Status'),
+                  React.createElement('th', {onClick:()=>toggleSort('updatedAt')}, 'Aktualizacja'),
+                  React.createElement('th', null, '')
+                )
+              ),
+              React.createElement('tbody', null,
+                filtered.map((a, i) => React.createElement('tr', {key:a.id, className: a.status==='banned' ? 'is-banned' : ''},
+                  React.createElement('td', null, React.createElement('span', {className:'rank' + (i<3 && sortKey==='views24h' && sortDir==='desc' ? ' top':'')}, String(i+1).padStart(2,'0'))),
+                  React.createElement('td', null,
+                    React.createElement('div', {className:'account-cell'},
+                      React.createElement('div', {className:'badge'}, 'IG'),
+                      React.createElement('div', null,
+                        React.createElement('div', {className:'acc-name'}, a.name),
+                        React.createElement('div', {className:'acc-handle'}, '@'+a.handle)
+                      ))),
+                  React.createElement('td', null, React.createElement('span', {className:'num views'}, a.views24h == null ? '—' : fmtNum(a.views24h))),
+                  React.createElement('td', null, React.createElement('span', {className:'num'}, a.followers == null ? '—' : fmtNum(a.followers))),
+                  React.createElement('td', null, React.createElement('span', {className:'num'}, a.posts == null ? '—' : fmtNum(a.posts))),
+                  React.createElement('td', null,
+                    React.createElement('span', {className:'status-pill ' + a.status},
+                      React.createElement('span', {className:'status-dot'}), a.status === 'live' ? 'Live' : 'Banned')),
+                  React.createElement('td', null, React.createElement('span', {className:'updated'}, fmtDate(a.updatedAt))),
+                  React.createElement('td', null,
+                    canWrite && React.createElement('div', {className:'row-actions'},
+                      React.createElement('button', {className:'icon-btn', title:'Usuń z listy', onClick:()=>handleRemoveAccount(a.handle)}, '✕')))
+                ))
+              )
+            )
+          ),
+
+    settingsOpen && React.createElement('div', {className:'overlay', onClick:(e)=>{ if(e.target.className==='overlay' && settings.owner) setSettingsOpen(false); }},
+      React.createElement('form', {className:'modal', onSubmit:saveSettings},
+        React.createElement('h2', null, 'Ustawienia'),
+        React.createElement('p', {className:'modal-desc'}, 'Dane repozytorium GitHub, w którym trzymasz automat (ig-auto-kit). Token jest zapisywany tylko w tej przeglądarce.'),
+        React.createElement('div', {className:'field'},
+          React.createElement('label', null, 'Właściciel repo (Twoja nazwa użytkownika GitHub)'),
+          React.createElement('input', {value:settingsDraft.owner||'', onChange:e=>setSettingsDraft({...settingsDraft, owner:e.target.value.trim()}), placeholder:'np. davidboss6996'})
+        ),
+        React.createElement('div', {className:'field'},
+          React.createElement('label', null, 'Nazwa repozytorium'),
+          React.createElement('input', {value:settingsDraft.repo||'', onChange:e=>setSettingsDraft({...settingsDraft, repo:e.target.value.trim()}), placeholder:'np. panel-instagram'})
+        ),
+        React.createElement('div', {className:'field'},
+          React.createElement('label', null, 'Token dostępu GitHub (opcjonalnie — potrzebny tylko do dodawania/usuwania kont)'),
+          React.createElement('input', {type:'password', value:settingsDraft.token||'', onChange:e=>setSettingsDraft({...settingsDraft, token:e.target.value.trim()}), placeholder:'github_pat_...'})
+        ),
+        React.createElement('div', {className:'modal-actions'},
+          settings.owner && React.createElement('button', {type:'button', className:'btn btn-ghost', onClick:()=>setSettingsOpen(false)}, 'Anuluj'),
+          React.createElement('button', {type:'submit', className:'btn btn-primary'}, 'Zapisz')
+        )
+      )
+    ),
+
+    addOpen && React.createElement('div', {className:'overlay', onClick:(e)=>{ if(e.target.className==='overlay') setAddOpen(false); }},
+      React.createElement('form', {className:'modal', onSubmit:handleAddAccount},
+        React.createElement('h2', null, 'Dodaj konto do śledzenia'),
+        React.createElement('p', {className:'modal-desc'}, 'Konto trafi na listę w config/usernames.json, a automat pobierze dla niego dane przy najbliższym uruchomieniu (uruchomimy je też od razu).'),
+        addMsg && React.createElement('div', {className: addMsg.startsWith('Błąd') ? 'modal-error' : 'modal-ok'}, addMsg),
+        React.createElement('div', {className:'field'},
+          React.createElement('label', null, 'Login Instagram (bez @)'),
+          React.createElement('input', {value:addHandle, autoFocus:true, onChange:e=>setAddHandle(e.target.value), placeholder:'np. kawiarnia_gorna'})
+        ),
+        React.createElement('div', {className:'field'},
+          React.createElement('label', null, 'Nazwa klienta (opcjonalnie)'),
+          React.createElement('input', {value:addName, onChange:e=>setAddName(e.target.value), placeholder:'np. Kawiarnia Górna'})
+        ),
+        React.createElement('div', {className:'modal-actions'},
+          React.createElement('button', {type:'button', className:'btn btn-ghost', onClick:()=>setAddOpen(false)}, 'Zamknij'),
+          React.createElement('button', {type:'submit', className:'btn btn-primary', disabled:addBusy}, addBusy ? 'Dodawanie…' : 'Dodaj konto')
+        )
+      )
+    )
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>
